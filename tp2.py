@@ -11,12 +11,14 @@ def main():
     
     for linea in mensajes_a_analizar:
         linea_analizada = algoritmo(linea, posibles_palabras)
+        
         if linea_analizada == []:
             print("No es un mensaje")
+        
         else:
             for palabra in linea_analizada:
                 print(palabra, end=" ")
-            print()
+            print()  # para el salto de línea
     
 if __name__ == "__main__":
     main()
