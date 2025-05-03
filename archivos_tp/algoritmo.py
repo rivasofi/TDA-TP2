@@ -34,7 +34,7 @@ def algoritmo(s, D):
                     indices[i] = j  # guardamos índice inicial de la palabra que marcamos válida
                     break  # para no seguir cortando
 
-    return reconstruccion(s, indices, n)
+    return c, indices
 
 def reconstruccion(s, indices, i):
     palabras = []
