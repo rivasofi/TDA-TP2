@@ -10,13 +10,25 @@ def obtener_diccionario_local(archivo_diccionario):
 
 # recibe la lista con palabras del diccionario local, y una cantidad n de palabras a seleccionar del mismo
 # devuelve un set con las palabras que seleccionó para el archivo de palabras
-def generar_diccionario_artificial(diccionario_local, n):
-    palabras_seleccionadas = random.sample(diccionario_local, n)
+# si se pasa una longitud_minima, se generarán palabras artificiales de longitud entre l_min y l_min+22
+# concatenando palabras del diccionario local hasta alcanzar o superar l_min
+def generar_palabras(diccionario_local, n, l_min=None):
+    palabras_seleccionadas = set()
     
-    return set(palabras_seleccionadas)
+    while len(palabras_seleccionadas) < n:
+        if l_min is not None:
+            palabra_actual = ""
+            while len(palabra_actual) < l_min:
+                palabra_actual += random.choice(diccionario_local)
+            palabras_seleccionadas.add(palabra_actual)
+        
+        else:
+            palabras_seleccionadas.add(random.choice(diccionario_local))
+
+    return palabras_seleccionadas
 
 # recibe el set con palabras seleccionadas y las escribe en un archivo
-def escribir_diccionario_artificial_en_archivo(diccionario_artificial, archivo_palabras):
+def escribir_archivo_palabras(diccionario_artificial, archivo_palabras):
     with open(archivo_palabras, "w") as archivo:
         for palabra in diccionario_artificial:
             archivo.write(palabra + "\n")
@@ -28,7 +40,7 @@ def escribir_diccionario_artificial_en_archivo(diccionario_artificial, archivo_p
     # cantidad de líneas (cadenas) a generar para el archivo
     # cantidad de palabras que tendrá cada línea
     # de las líneas totales, la cantidad que queramos que sean cadenas inválidas
-def generar_cadenas_encriptadas(diccionario_local, diccionario_artificial, cant_lineas, palabras_por_linea, cant_invalidas, archivo_cadenas):
+def generar_cadenas(diccionario_local, diccionario_artificial, cant_lineas, palabras_por_linea, cant_invalidas, archivo_cadenas):
     lineas = []
     
     if cant_invalidas > cant_lineas:
@@ -75,12 +87,13 @@ if __name__ == "__main__":
     
     # generar archivo con palabras
     n = 10
+    l_min = None  # modificar para cambiar L
     diccionario_local = obtener_diccionario_local(archivo_diccionario)
-    diccionario_artificial = generar_diccionario_artificial(diccionario_local, n)
-    escribir_diccionario_artificial_en_archivo(diccionario_artificial, archivo_palabras)
+    diccionario_artificial = generar_palabras(diccionario_local, n, l_min)
+    escribir_archivo_palabras(diccionario_artificial, archivo_palabras)
 
     # generar archivo con cadenas de texto
     n_lineas = 5
-    palabras_por_linea = 20
-    num_invalidas = 3 
-    generar_cadenas_encriptadas(diccionario_local, diccionario_artificial, n_lineas, palabras_por_linea, num_invalidas, archivo_cadenas)
+    palabras_por_linea = 10
+    num_invalidas = 2 
+    generar_cadenas(diccionario_local, diccionario_artificial, n_lineas, palabras_por_linea, num_invalidas, archivo_cadenas)
