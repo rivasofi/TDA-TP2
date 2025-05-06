@@ -12,16 +12,21 @@ def obtener_diccionario_local(archivo_diccionario):
 # devuelve un set con las palabras que seleccionó para el archivo de palabras
 # si se pasa una longitud_minima, se generarán palabras artificiales de longitud entre l_min y l_min+22
 # concatenando palabras del diccionario local hasta alcanzar o superar l_min
-def generar_palabras(diccionario_local, n, l_min=None):
+def generar_palabras(diccionario_local, n, l_min=None, l_max=None):
     palabras_seleccionadas = set()
-    
+
     while len(palabras_seleccionadas) < n:
         if l_min is not None:
+            if l_max is None:
+                l_max = l_min
+
+            longitud_objetivo = random.randint(l_min, l_max)
             palabra_actual = ""
-            while len(palabra_actual) < l_min:
+            while len(palabra_actual) < longitud_objetivo:
                 palabra_actual += random.choice(diccionario_local)
+            palabra_actual = palabra_actual[:longitud_objetivo]  # truncar si se pasó
             palabras_seleccionadas.add(palabra_actual)
-        
+
         else:
             palabras_seleccionadas.add(random.choice(diccionario_local))
 
