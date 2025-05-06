@@ -25,8 +25,8 @@ def graficar_medicion_L_variable(results, x_2):
     ax: plt.Axes
     fig, ax = plt.subplots()
     ax.plot(x_2, [results[i] for i in x_2], label="Medición")
-    ax.set_title('Tiempo de ejecución de comparar transacciones')
-    ax.set_xlabel('Cantidad de transacciones')
+    ax.set_title('Tiempo de ejecución de algoritmo')
+    ax.set_xlabel('L mínimo')
     ax.set_ylabel('Tiempo de ejecución (s)')
     None
 
@@ -37,7 +37,8 @@ def graficar_medicion_L_variable(results, x_2):
 
 
     print(f"c_1 = {c[0]}, c_2 = {c[1]}")
-    r = np.sum((c[0] * x_2 **2 + c[1] - [results[n] for n in x_2])**2)
+    x_2 = np.array(x_2)
+    r = np.sum((c[0] * x_2 ** 2 + c[1] - [results[n] for n in x_2]) ** 2)
     print(f"Error cuadrático total: {r}")
     ax.plot(x_2, [c[0] * n **2 + c[1] for n in x_2], 'r--', label="Ajuste")
     ax.legend()
@@ -51,7 +52,7 @@ def graficar_error_L_variable(c, results, x_2):
     errors = [np.abs(c[0] * n **2 + c[1] - results[n]) for n in x_2]
     ax.plot(x_2, errors)
     ax.set_title('Error de ajuste')
-    ax.set_xlabel('Cantidad de transacciones')
+    ax.set_xlabel('L mínimo')
     ax.set_ylabel('Error absoluto (s)')
     None
     fig.savefig(f"error-L_variable.png", dpi=300, bbox_inches='tight')
@@ -101,18 +102,17 @@ def graficar_error_n_variable(c, results, x):
 def crear_cadenas_y_medir_n(palabras_por_linea):
     
     archivo_diccionario = "../diccionario_local.txt"
-    archivo_palabras = "palabras-30.txt"
+    archivo_palabras = f"palabras_n_{palabras_por_linea}.txt"
     archivo_cadenas = f"{palabras_por_linea}_in.txt"
 
     n = 30
-    l_min = 7  # modificar para cambiar L
+    l_min = 7  # fijamos L = 7
+
     diccionario_local = obtener_diccionario_local(archivo_diccionario)
-    if not os.path.exists(archivo_palabras):
-        diccionario_artificial = generar_palabras(diccionario_local, n, l_min)
-        escribir_archivo_palabras(diccionario_artificial, archivo_palabras)
-    else:
-        # Cargar desde el archivo único ya existente
-        diccionario_artificial = cargar_palabras(archivo_palabras)
+
+    # Generar nuevas palabras para cada valor de n, con L fijo
+    diccionario_artificial = generar_palabras(diccionario_local, n, l_min, l_max=l_min)
+    escribir_archivo_palabras(diccionario_artificial, archivo_palabras)
 
     # generar archivo con cadenas de texto
     
@@ -121,7 +121,7 @@ def crear_cadenas_y_medir_n(palabras_por_linea):
     num_invalidas = 0
     generar_cadenas(diccionario_local, diccionario_artificial, n_lineas, palabras_por_linea, num_invalidas, archivo_cadenas)
     
-    posibles_palabras = cargar_palabras(archivo_palabras)
+    posibles_palabras = set(cargar_palabras(archivo_palabras))
     mensajes_a_analizar = cargar_mensajes(archivo_cadenas)
 
     for linea in mensajes_a_analizar:
@@ -157,6 +157,19 @@ def crear_cadenas_y_medir_L(palabra_mas_larga):
 def funcion_a_medir_n_variable(palabras_por_linea):
     return crear_cadenas_y_medir_n(palabras_por_linea)
 
+def funcion_algoritmo_puro(n):
+    # L fijo
+    L = 7
+
+    # generar diccionario artificial de n palabras de longitud L
+    diccionario_local = obtener_diccionario_local("../diccionario_local.txt")
+    D = generar_palabras(diccionario_local, n, L, L)
+    D = set(D)
+
+    # generar cadena s: concatenar n palabras válidas
+    s = "".join(random.choices(list(D), k=n))
+
+    return algoritmo, [s, D]
 
 def funcion_a_medir_L_variable(palabra_mas_larga):
     return crear_cadenas_y_medir_L(palabra_mas_larga)
@@ -166,33 +179,39 @@ def funcion_a_medir_L_variable(palabra_mas_larga):
 #         results = time_algorithm(funcion_a_medir, x, lambda cantidad_transacciones: [cantidad_transacciones])
 #         return results
     
+def funcion_algoritmo_L_variable(L):
+    n = 10000  # tamaño fijo de cadena
+
+    diccionario_local = obtener_diccionario_local("../diccionario_local.txt")
+    D = generar_palabras(diccionario_local, n, L, L)  # palabras de longitud exacta L
+    D = set(D)
+
+    s = "".join(random.choices(list(D), k=n))  # cadena de largo n * L
+    return algoritmo, [s, D]    
+
 def obtener_volumenes(minimo, maximo, cantidad):
     return np.linspace(minimo, maximo, cantidad).astype(int)
 
+def ejecutar_algoritmo(s, d):
+    return algoritmo(s, d)
+
+def obtener_args_algoritmo_puro(n):
+    return funcion_algoritmo_puro(n)[1]
+
+def obtener_args_algoritmo_L(L):
+    return funcion_algoritmo_L_variable(L)[1]
 
 if __name__ == '__main__':
-    seed (12345)
+    seed(12345)
     np.random.seed(12345)
     sns.set_theme()
 
-    x = obtener_volumenes(5001, 50000, 10)
+    # # --------- Medición con n variable ---------
+    # x_n = obtener_volumenes(5000, 25000, 6)
+    # results_n = time_algorithm(ejecutar_algoritmo, x_n, obtener_args_algoritmo_n)
+    # graficar_medicion_n_variable(results_n, x_n)
 
-    x_2 = obtener_volumenes(25, 70, 10)
-
-
-    
-
-
-    # results_x = time_algorithm(funcion_a_medir_n_variable, x, lambda palabras_por_linea: [palabras_por_linea])
-
-    # graficar_medicion_n_variable(results_x, x)
-    #Medir con varios valores en un n variable (variar )
-
-    results_x_2 = time_algorithm(funcion_a_medir_L_variable, x_2, lambda palabra_mas_larga: [palabra_mas_larga])
-
-    graficar_medicion_L_variable(results_x_2, x_2)
-    
-
-
-    
-
+    # --------- Medición con L variable ---------
+    x_L = list(range(5, 51, 5))
+    results_L = time_algorithm(ejecutar_algoritmo, x_L, obtener_args_algoritmo_L)
+    graficar_medicion_L_variable(results_L, x_L)
