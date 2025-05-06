@@ -201,17 +201,20 @@ def obtener_args_algoritmo_puro(n):
 def obtener_args_algoritmo_L(L):
     return funcion_algoritmo_L_variable(L)[1]
 
+def obtener_args_algoritmo_n(n):
+    return funcion_algoritmo_puro(n)[1]
+
 if __name__ == '__main__':
     seed(12345)
     np.random.seed(12345)
     sns.set_theme()
 
     # # --------- Medición con n variable ---------
-    # x_n = obtener_volumenes(5000, 25000, 6)
-    # results_n = time_algorithm(ejecutar_algoritmo, x_n, obtener_args_algoritmo_n)
-    # graficar_medicion_n_variable(results_n, x_n)
+    x_n = obtener_volumenes(5000, 25000, 6)
+    results_n = time_algorithm(ejecutar_algoritmo, x_n, obtener_args_algoritmo_n)
+    graficar_medicion_n_variable(results_n, x_n)
 
     # --------- Medición con L variable ---------
-    x_L = list(range(5, 51, 5))
-    results_L = time_algorithm(ejecutar_algoritmo, x_L, obtener_args_algoritmo_L)
-    graficar_medicion_L_variable(results_L, x_L)
+    # x_L = list(range(5, 51, 5))
+    # results_L = time_algorithm(ejecutar_algoritmo, x_L, obtener_args_algoritmo_L)
+    # graficar_medicion_L_variable(results_L, x_L)
